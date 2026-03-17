@@ -2,17 +2,18 @@ import os
 import sys
 from dataclasses import dataclass
 
-from catboost import CatBoostRegressor
+from catboost import CatBoostClassifier
 from sklearn.ensemble import (
-    AdaBoostRegressor,
-    GradientBoostingRegressor,
-    RandomForestRegressor,
+    AdaBoostClassifier,
+    GradientBoostingClassifier,
+    RandomForestClassifier,
 )
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.tree import DecisionTreeRegressor
-from xgboost import XGBRegressor
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
 
 from src.exception import CustomException
 from src.logger import logging
@@ -22,6 +23,7 @@ from src.utils import save_object,evaluate_models
 @dataclass
 class ModelTrainerConfig:
     trained_model_file_path=os.path.join("artifacts","model.pkl")
+    target_encoder_file_path=os.path.join("artifacts","target_encoder.pkl")
 
 class ModelTrainer:
     def __init__(self):
@@ -37,55 +39,61 @@ class ModelTrainer:
                 test_array[:,:-1],
                 test_array[:,-1]
             )
+
+            target_encoder = LabelEncoder()
+            y_train_encoded = target_encoder.fit_transform(y_train)
+            y_test_encoded = target_encoder.transform(y_test)
             models = {
-                "Random Forest": RandomForestRegressor(),
-                "Decision Tree": DecisionTreeRegressor(),
-                "Gradient Boosting": GradientBoostingRegressor(),
-                "Linear Regression": LinearRegression(),
-                "XGBRegressor": XGBRegressor(),
-                "CatBoosting Regressor": CatBoostRegressor(verbose=False),
-                "AdaBoost Regressor": AdaBoostRegressor(),
+                "Random Forest": RandomForestClassifier(random_state=42),
+                "Decision Tree": DecisionTreeClassifier(random_state=42),
+                "Gradient Boosting": GradientBoostingClassifier(random_state=42),
+                "Logistic Regression": LogisticRegression(max_iter=1000),
+                "KNN": KNeighborsClassifier(),
+                "XGBClassifier": XGBClassifier(eval_metric='logloss', random_state=42),
+                "CatBoostClassifier": CatBoostClassifier(verbose=False, random_state=42),
+                "AdaBoost Classifier": AdaBoostClassifier(random_state=42),
             }
             params={
                 "Decision Tree": {
-                    'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                    # 'splitter':['best','random'],
-                    # 'max_features':['sqrt','log2'],
+                    'criterion':['gini', 'entropy', 'log_loss'],
+                    'max_depth': [None, 5, 10, 20],
                 },
                 "Random Forest":{
-                    # 'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                 
-                    # 'max_features':['sqrt','log2',None],
-                    'n_estimators': [8,16,32,64,128,256]
+                    'n_estimators': [50, 100, 200],
+                    'max_depth': [None, 10, 20],
                 },
                 "Gradient Boosting":{
-                    # 'loss':['squared_error', 'huber', 'absolute_error', 'quantile'],
-                    'learning_rate':[.1,.01,.05,.001],
-                    'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
-                    # 'criterion':['squared_error', 'friedman_mse'],
-                    # 'max_features':['auto','sqrt','log2'],
-                    'n_estimators': [8,16,32,64,128,256]
+                    'learning_rate':[0.1, 0.01],
+                    'subsample':[0.8, 1.0],
+                    'n_estimators': [50, 100, 200],
                 },
-                "Linear Regression":{},
-                "XGBRegressor":{
-                    'learning_rate':[.1,.01,.05,.001],
-                    'n_estimators': [8,16,32,64,128,256]
+                "Logistic Regression":{
+                    'C': [0.1, 1.0, 10.0],
+                    'solver': ['lbfgs', 'liblinear'],
                 },
-                "CatBoosting Regressor":{
-                    'depth': [6,8,10],
+                "KNN":{
+                    'n_neighbors': [3, 5, 7, 9],
+                    'weights': ['uniform', 'distance'],
+                },
+                "XGBClassifier":{
+                    'learning_rate':[0.1, 0.01],
+                    'n_estimators': [50, 100, 200],
+                    'max_depth': [3, 5, 7],
+                },
+                "CatBoostClassifier":{
+                    'depth': [4, 6, 8],
                     'learning_rate': [0.01, 0.05, 0.1],
-                    'iterations': [30, 50, 100]
+                    'iterations': [50, 100, 200],
                 },
-                "AdaBoost Regressor":{
-                    'learning_rate':[.1,.01,0.5,.001],
-                    # 'loss':['linear','square','exponential'],
-                    'n_estimators': [8,16,32,64,128,256]
+                "AdaBoost Classifier":{
+                    'learning_rate':[0.1, 0.01, 0.5],
+                    'n_estimators': [50, 100, 200],
                 }
                 
             }
 
-            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test,
-                                             models=models,param=params)
+            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train_encoded,X_test=X_test,y_test=y_test_encoded,
+                                             models=models,param=params, task_type="classification")
             
             ## To get best model score from dict
             best_model_score = max(sorted(model_report.values()))
@@ -106,10 +114,15 @@ class ModelTrainer:
                 obj=best_model
             )
 
+            save_object(
+                file_path=self.model_trainer_config.target_encoder_file_path,
+                obj=target_encoder
+            )
+
             predicted=best_model.predict(X_test)
 
-            r2_square = r2_score(y_test, predicted)
-            return r2_square
+            accuracy = accuracy_score(y_test_encoded, predicted)
+            return accuracy
             
 
 

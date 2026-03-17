@@ -13,12 +13,16 @@ class PredictPipeline:
         try:
             model_path=os.path.join("artifacts","model.pkl")
             preprocessor_path=os.path.join('artifacts','preprocessor.pkl')
-            print("Before Loading")
+            target_encoder_path = os.path.join('artifacts', 'target_encoder.pkl')
             model=load_object(file_path=model_path)
             preprocessor=load_object(file_path=preprocessor_path)
-            print("After Loading")
             data_scaled=preprocessor.transform(features)
             preds=model.predict(data_scaled)
+
+            if os.path.exists(target_encoder_path):
+                target_encoder = load_object(file_path=target_encoder_path)
+                preds = target_encoder.inverse_transform(preds.astype(int))
+
             return preds
         
         except Exception as e:
@@ -29,37 +33,46 @@ class PredictPipeline:
 class CustomData:
     def __init__(  self,
         gender: str,
-        race_ethnicity: str,
-        parental_level_of_education,
-        lunch: str,
-        test_preparation_course: str,
-        reading_score: int,
-        writing_score: int):
+        ssc_p: float,
+        ssc_b: str,
+        hsc_p: float,
+        hsc_b: str,
+        hsc_s: str,
+        degree_p: float,
+        degree_t: str,
+        workex: str,
+        etest_p: float,
+        specialisation: str,
+        mba_p: float):
 
         self.gender = gender
-
-        self.race_ethnicity = race_ethnicity
-
-        self.parental_level_of_education = parental_level_of_education
-
-        self.lunch = lunch
-
-        self.test_preparation_course = test_preparation_course
-
-        self.reading_score = reading_score
-
-        self.writing_score = writing_score
+        self.ssc_p = ssc_p
+        self.ssc_b = ssc_b
+        self.hsc_p = hsc_p
+        self.hsc_b = hsc_b
+        self.hsc_s = hsc_s
+        self.degree_p = degree_p
+        self.degree_t = degree_t
+        self.workex = workex
+        self.etest_p = etest_p
+        self.specialisation = specialisation
+        self.mba_p = mba_p
 
     def get_data_as_data_frame(self):
         try:
             custom_data_input_dict = {
                 "gender": [self.gender],
-                "race_ethnicity": [self.race_ethnicity],
-                "parental_level_of_education": [self.parental_level_of_education],
-                "lunch": [self.lunch],
-                "test_preparation_course": [self.test_preparation_course],
-                "reading_score": [self.reading_score],
-                "writing_score": [self.writing_score],
+                "ssc_p": [self.ssc_p],
+                "ssc_b": [self.ssc_b],
+                "hsc_p": [self.hsc_p],
+                "hsc_b": [self.hsc_b],
+                "hsc_s": [self.hsc_s],
+                "degree_p": [self.degree_p],
+                "degree_t": [self.degree_t],
+                "workex": [self.workex],
+                "etest_p": [self.etest_p],
+                "specialisation": [self.specialisation],
+                "mba_p": [self.mba_p],
             }
 
             return pd.DataFrame(custom_data_input_dict)

@@ -1,10 +1,6 @@
 from flask import Flask,request,render_template
-import numpy as np
-import pandas as pd
-import webbrowser
-from sklearn.preprocessing import StandardScaler
 from src.pipeline.predict_pipeline import CustomData,PredictPipeline
-
+import webbrowser
 application=Flask(__name__)
 
 app=application
@@ -23,30 +19,31 @@ def predict_datapoint():
     else:
         data=CustomData(
             gender=request.form.get('gender'),
-            race_ethnicity=request.form.get('ethnicity'),
-            parental_level_of_education=request.form.get('parental_level_of_education'),
-            lunch=request.form.get('lunch'),
-            test_preparation_course=request.form.get('test_preparation_course'),
-            reading_score=float(request.form.get('reading_score')),
-            writing_score=float(request.form.get('writing_score'))
+            ssc_p=float(request.form.get('ssc_p')),
+            ssc_b=request.form.get('ssc_b'),
+            hsc_p=float(request.form.get('hsc_p')),
+            hsc_b=request.form.get('hsc_b'),
+            hsc_s=request.form.get('hsc_s'),
+            degree_p=float(request.form.get('degree_p')),
+            degree_t=request.form.get('degree_t'),
+            workex=request.form.get('workex'),
+            etest_p=float(request.form.get('etest_p')),
+            specialisation=request.form.get('specialisation'),
+            mba_p=float(request.form.get('mba_p'))
 
         )
         pred_df = data.get_data_as_data_frame()
-        for col in pred_df.columns:
-            print(f"{col}: {pred_df[col].values[0]}")
-        print("Before Prediction")
-
-        import sys
-        sys.stdout.flush()
-
         predict_pipeline=PredictPipeline()
-        print("Mid Prediction", flush=True)
         results=predict_pipeline.predict(pred_df)
-        print("after Prediction", flush=True)
         return render_template('home.html',results=results[0])
     
 
 if __name__=="__main__":
-    app.run(host="0.0.0.0")
+    url = "http://127.0.0.1:5000/predictdata"
+    
+    print("🚀 Starting server...")
+    webbrowser.open(url)   # opens browser automatically
+    
+    app.run(host="127.0.0.1", port=5000, debug=True)
 
 

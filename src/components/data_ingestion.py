@@ -25,7 +25,7 @@ class DataIngestion:
     def initiate_data_ingestion(self):
         logging.info("Entered the data ingestion method or component")
         try:
-            df=pd.read_csv('notebook/data/StudentsPerformance.csv')
+            df=pd.read_csv('notebook/data/Placement_Data_Full_Class.csv')
             df.columns = df.columns.str.replace(' ', '_').str.replace('/', '_')
             logging.info('Read the dataset as dataframe')
 

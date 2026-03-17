@@ -22,20 +22,14 @@ class DataTransformation:
     def __init__(self):
         self.data_transformation_config=DataTransformationConfig()
 
-    def get_data_transformer_object(self):
+    def get_data_transformer_object(self, input_features: pd.DataFrame):
         '''
-        This function si responsible for data trnasformation
+        Build preprocessing pipelines from dtypes to avoid hardcoded column lists.
         
         '''
         try:
-            numerical_columns = ["writing_score", "reading_score"]
-            categorical_columns = [
-                "gender",
-                "race_ethnicity",
-                "parental_level_of_education",
-                "lunch",
-                "test_preparation_course",
-            ]
+            numerical_columns = input_features.select_dtypes(include=["number"]).columns.tolist()
+            categorical_columns = input_features.select_dtypes(exclude=["number"]).columns.tolist()
 
             num_pipeline= Pipeline(
                 steps=[
@@ -83,16 +77,20 @@ class DataTransformation:
 
             logging.info("Obtaining preprocessing object")
 
-            preprocessing_obj=self.get_data_transformer_object()
+            target_column_name="status"
+            ignored_columns = ["salary", "sl_no"]
 
-            target_column_name="math_score"
-            numerical_columns = ["writing_score", "reading_score"]
-
-            input_feature_train_df=train_df.drop(columns=[target_column_name],axis=1)
+            input_feature_train_df=train_df.drop(
+                columns=[target_column_name] + [col for col in ignored_columns if col in train_df.columns],
+            )
             target_feature_train_df=train_df[target_column_name]
 
-            input_feature_test_df=test_df.drop(columns=[target_column_name],axis=1)
+            input_feature_test_df=test_df.drop(
+                columns=[target_column_name] + [col for col in ignored_columns if col in test_df.columns],
+            )
             target_feature_test_df=test_df[target_column_name]
+
+            preprocessing_obj=self.get_data_transformer_object(input_feature_train_df)
 
             logging.info(
                 f"Applying preprocessing object on training dataframe and testing dataframe."
