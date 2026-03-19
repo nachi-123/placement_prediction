@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+logs/
+catboost_info/
+*.egg-info
+.git
+.gitignore
