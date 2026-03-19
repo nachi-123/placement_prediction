@@ -1,5 +1,6 @@
 from flask import Flask,request,render_template
 from src.pipeline.predict_pipeline import CustomData,PredictPipeline
+import os
 import webbrowser
 application=Flask(__name__)
 
@@ -42,8 +43,9 @@ if __name__=="__main__":
     url = "http://127.0.0.1:5000/predictdata"
     
     print("🚀 Starting server...")
-    webbrowser.open(url)   # opens browser automatically
+    if os.environ.get("RUNNING_IN_DOCKER") != "1":
+        webbrowser.open(url)   # opens browser automatically
     
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 

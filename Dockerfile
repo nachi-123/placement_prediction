@@ -1,18 +1,12 @@
-FROM python:3.8-slim-buster 
+FROM python:3.11-slim  
 
 WORKDIR /app
-
-
-# Copy entire project
 COPY . /app
 
-# Install your package
-RUN apt update -y && apt install awscli -y
-RUN pip install -r requirements.txt
+ENV RUNNING_IN_DOCKER=1
 
+RUN pip install awscli && \
+    pip install -r requirements.txt
 
-
-# Run Flask application
-CMD ["python", "application.py"]
-
-
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 unzip -y && pip install -r requirements.txt
+CMD ["python3", "application.py"]
