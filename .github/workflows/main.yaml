@@ -28,10 +28,21 @@ jobs:
   build-and-push-ecr-image:
     name: Continuous Delivery
     needs: integration
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+       
+      - name: Free disk space
+        run: |
+          sudo apt clean
+          docker system prune -af
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/lib/google-cloud-sdk
+          sudo rm -rf /usr/local/lib/android
+          df -h  # Check available space
 
       - name: Install Utilities
         run: |

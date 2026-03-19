@@ -1,103 +1,173 @@
-<html>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Placement Prediction</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 15px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            background-color: #e9ecef;
+        }
+        .result-text {
+            color: #198754;
+            font-weight: 700;
+            margin: 0;
+        }
+    </style>
+</head>
 <body>
-    <div class="login">
-    <h1>Student Placement Prediction System</h1>
-    <p>*Prediction is based on academic performance and test scores</p>
-       <form action="{{ url_for('predict_datapoint')}}" method="post">
+    <div class="container main-container">
+        <h1>Campus Placement Prediction</h1>
+        <p class="subtitle">Enter academic performance and test scores to predict placement status.</p>
         
-        <div class="mb-3">
-            <label class="form-label">Gender</label>
-            <select class="form-control" name="gender" placeholder="Enter you Gender" required>
-                <option class="placeholder" selected disabled value="">Select your Gender</option>
-                <option value="M">
-                    M
-                </option>
-                <option value="F">
-                    F
-                </option>
-            </select>
+        <form action="{{ url_for('predict_datapoint')}}" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" name="gender" required>
+                        <option value="" selected disabled>Select Gender</option>
+                        <option value="M">Male (M)</option>
+                        <option value="F">Female (F)</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Secondary Education % (SSC)</label>
+                    <input class="form-control" type="number" step="0.01" name="ssc_p" placeholder="e.g. 85.50" min='0' max='100' required />
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">SSC Board</label>
+                    <select class="form-select" name="ssc_b" required>
+                        <option value="" selected disabled>Select SSC Board</option>
+                        <option value="Central">Central</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Higher Secondary % (HSC)</label>
+                    <input class="form-control" type="number" step="0.01" name="hsc_p" placeholder="e.g. 82.00" min='0' max='100' required />
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">HSC Board</label>
+                    <select class="form-select" name="hsc_b" required>
+                        <option value="" selected disabled>Select HSC Board</option>
+                        <option value="Central">Central</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">HSC Stream</label>
+                    <select class="form-select" name="hsc_s" required>
+                        <option value="" selected disabled>Select HSC Stream</option>
+                        <option value="Commerce">Commerce</option>
+                        <option value="Science">Science</option>
+                        <option value="Arts">Arts</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Degree Percentage</label>
+                    <input class="form-control" type="number" step="0.01" name="degree_p" placeholder="e.g. 75.00" min='0' max='100' required />
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Degree Type</label>
+                    <select class="form-select" name="degree_t" required>
+                        <option value="" selected disabled>Select Degree Type</option>
+                        <option value="Sci&Tech">Science & Tech</option>
+                        <option value="Comm&Mgmt">Commerce & Management</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Work Experience</label>
+                    <select class="form-select" name="workex" required>
+                        <option value="" selected disabled>Select Work Experience</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Employability Test %</label>
+                    <input class="form-control" type="number" step="0.01" name="etest_p" placeholder="e.g. 80.00" min='0' max='100' required />
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">MBA Specialisation</label>
+                    <select class="form-select" name="specialisation" required>
+                        <option value="" selected disabled>Select Specialisation</option>
+                        <option value="Mkt&HR">Marketing & HR</option>
+                        <option value="Mkt&Fin">Marketing & Finance</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">MBA Percentage</label>
+                    <input class="form-control" type="number" step="0.01" name="mba_p" placeholder="e.g. 71.00" min='0' max='100' required />
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <input class="btn btn-primary" type="submit" value="Predict Placement Status" />
+            </div>
+        </form>
+
+        {% if results %}
+        <div class="result-box">
+            <h3 class="result-text">Predicted Status: {{ results }}</h3>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Secondary Education Percentage (ssc_p)</label>
-            <input class="form-control" type="number" step="0.01" name="ssc_p"
-                placeholder="Enter SSC percentage" min='0' max='100' required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">SSC Board (ssc_b)</label>
-            <select class="form-control" name="ssc_b" required>
-                <option class="placeholder" selected disabled value="">Select SSC board</option>
-                <option value="Central">Central</option>
-                <option value="Others">Others</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Higher Secondary Percentage (hsc_p)</label>
-            <input class="form-control" type="number" step="0.01" name="hsc_p"
-                placeholder="Enter HSC percentage" min='0' max='100' required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">HSC Board (hsc_b)</label>
-            <select class="form-control" name="hsc_b" required>
-                <option class="placeholder" selected disabled value="">Select HSC board</option>
-                <option value="Central">Central</option>
-                <option value="Others">Others</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">HSC Stream (hsc_s)</label>
-            <select class="form-control" name="hsc_s" required>
-                <option class="placeholder" selected disabled value="">Select HSC stream</option>
-                <option value="Commerce">Commerce</option>
-                <option value="Science">Science</option>
-                <option value="Arts">Arts</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Degree Percentage (degree_p)</label>
-            <input class="form-control" type="number" step="0.01" name="degree_p"
-                placeholder="Enter degree percentage" min='0' max='100' required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Degree Type (degree_t)</label>
-            <select class="form-control" name="degree_t" required>
-                <option class="placeholder" selected disabled value="">Select degree type</option>
-                <option value="Sci&Tech">Sci&Tech</option>
-                <option value="Comm&Mgmt">Comm&Mgmt</option>
-                <option value="Others">Others</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Work Experience (workex)</label>
-            <select class="form-control" name="workex" required>
-                <option class="placeholder" selected disabled value="">Select work experience</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Employability Test Percentage (etest_p)</label>
-            <input class="form-control" type="number" step="0.01" name="etest_p"
-                placeholder="Enter employability test percentage" min='0' max='100' required />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">MBA Specialisation (specialisation)</label>
-            <select class="form-control" name="specialisation" required>
-                <option class="placeholder" selected disabled value="">Select specialisation</option>
-                <option value="Mkt&HR">Mkt&HR</option>
-                <option value="Mkt&Fin">Mkt&Fin</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">MBA Percentage (mba_p)</label>
-            <input class="form-control" type="number" step="0.01" name="mba_p"
-                placeholder="Enter MBA percentage" min='0' max='100' required />
-        </div>
-        <div class="mb-3">
-            <input class="btn btn-primary" type="submit" value="Predict Placement Status" required />
-        </div>
-    </form>
-    <h2>
-       Predicted placement status: {{results}}
-    </h2>
-   <body>
+        {% endif %}
+    </div>
+</body>
 </html>
