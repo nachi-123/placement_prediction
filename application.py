@@ -36,7 +36,8 @@ def predict_datapoint():
         predict_pipeline=PredictPipeline()
         results=predict_pipeline.predict(pred_df)
         return render_template('home.html',results=results[0])
-    
+
+
 
 if __name__=="__main__":
     url = "http://127.0.0.1:5000/predictdata"
